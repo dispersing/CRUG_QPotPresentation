@@ -11,8 +11,6 @@ Cleveland R Users Group
 
 Some R notes, pt. I
 ========================================================
-autosize: true
-- I've never used R Studio, so please forgive me in advance (I updated my version, which was from 2012)
 - Packages I'll be using if you want to follow along
 
 ```r
@@ -23,12 +21,16 @@ autosize: true
   library(package = "QPot") # Our package!
   library(package = "viridis") # Great color map
 ```
+- For this presentation, I opened RStudio for the second time, and updated from v. ~2012
 
 Some R notes, pt. II
 ========================================================
-- Based primarily on two works
-  - B. C. Nolting and K. C. Abbott. Balls, cups, and quasi-potentials: Quantifying stability in stochastic systems. Ecology, 97(4):850–864, 2016.
-  - C. Moore, C. Stieha, B. Nolting, M. Cameron, and K. Abbott. QPot: Quasi-Potential Analysis for Stochastic Differential Equations, 2016. URL [https://www.R-project.org/package=QPot](https:// github.com/bmarkslash7/QPot). R package version 1.2.
+### Based primarily on two works
+  1. Nolting and Abbott's *Ecology* paper
+    - B. C. Nolting and K. C. Abbott. Balls, cups, and quasi-potentials: Quantifying stability in stochastic systems. Ecology, 97(4):850–864, 2016.
+  2. Our R package and paper
+    - C.M. Moore, C.R. Stieha, B.C. Nolting, M.K. Cameron, and K.C. Abbott. QPot: Quasi-Potential Analysis for Stochastic Differential Equations, 2016. URL [https://www.R-project.org/package=QPot](https://www.R-project.org/package=QPot). R package version 1.2.
+    - Moore, C.M., Stieha, C.R., Nolting, B.C., Cameron, M.K. and Abbott, K.C. 2015. QPot: An R Package for Stochastic Differential Equation Quasi-Potential Analysis. [arXiv preprint arXiv:1510.07992](http://arxiv.org/abs/1510.07992).
 
 Ecology: a science of dynamics and complexity
 ========================================================
@@ -350,13 +352,13 @@ TSPlot(ts, deltat = model.deltat, dim = 2)
 TSDensity(mat = ts, deltat = model.deltat, dim = 2, col2d = viridis(100, option = "A"))
 ```
 
-<img src="QPot-figure/unnamed-chunk-26-1.png" title="plot of chunk unnamed-chunk-26" alt="plot of chunk unnamed-chunk-26" width="600px" height="600px" /><img src="QPot-figure/unnamed-chunk-26-2.png" title="plot of chunk unnamed-chunk-26" alt="plot of chunk unnamed-chunk-26" width="600px" height="600px" />
+<img src="QPot-figure/unnamed-chunk-26-1.png" title="plot of chunk unnamed-chunk-26" alt="plot of chunk unnamed-chunk-26" width="800px" height="800px" /><img src="QPot-figure/unnamed-chunk-26-2.png" title="plot of chunk unnamed-chunk-26" alt="plot of chunk unnamed-chunk-26" width="800px" height="800px" />
 
 QPOT: what is the quasi-potential
 ========================================================
 The potential relates to the work needed to move from one point to another, with the areas of least potential at surface minima.
 
-<img src="QPot-figure/Stab-1.png" title="plot of chunk Stab" alt="plot of chunk Stab" width="800px" height="500px" />
+<img src="QPot-figure/unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="800px" height="500px" />
 
 **The quasi-potential is a tool that yields information about properties of stochastic systems, such as the expected time to escape a basin of attraction, the expected frequency of transitions between basins, and the stationary probability distribution.**
 
@@ -376,6 +378,11 @@ Sources for more information
 QPOT: competition example, revisited
 ========================================================
  ![](QPot-figure/CE-1.png)
+
+QPOT: competition example, with stochasticity
+========================================================
+<img src="QPot-figure/unnamed-chunk-28-1.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-28-2.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-28-3.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-28-4.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-28-5.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-28-6.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-28-7.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-28-8.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="500px" height="500px" />
+
 
 QPOT: competition example, finding stable equilibrium points
 ========================================================
@@ -402,7 +409,7 @@ QPContour(surface = local.1, dens = c(500, 500), x.bound = c(-1, 15), y.bound = 
 
 
 
-<img src="QPot-figure/unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="600px" height="600px" /><img src="QPot-figure/unnamed-chunk-29-2.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="600px" height="600px" />
+<img src="QPot-figure/unnamed-chunk-31-1.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" width="600px" height="600px" /><img src="QPot-figure/unnamed-chunk-31-2.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" width="600px" height="600px" />
 
 QPOT: competition example, global quasi-potentials
 ========================================================
@@ -422,16 +429,19 @@ global.qp <- QPGlobal(local.surfaces = list(local.1, local.2), unstable.eq.x = c
 QPContour(surface = global.qp, dens = c(1000, 1000), x.bound = c(-5, 15), y.bound = c(-5, 15), xlim = c(-1, 11), ylim = c(-1, 11))
 ```
 
-<img src="QPot-figure/unnamed-chunk-31-1.png" title="plot of chunk unnamed-chunk-31" alt="plot of chunk unnamed-chunk-31" width="600px" height="600px" />
+<img src="QPot-figure/unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="600px" height="600px" />
 
-QPOT: a disagreement
+QPOT: a disagreement in stability
 ========================================================
  $$\frac{dx(t)}{dt} = \alpha x(t)\left(1 - \frac{x(t)}{\beta}\right) - \frac{\delta x^2(t)y(t)}{\kappa + x^2(t)}$$
 $$\frac{dy(t)}{dt} = \frac{\gamma x^2(t)y(t)}{\kappa + x^2(t)} - \mu y^2(t)$$
-<img src="QPot-figure/unnamed-chunk-32-1.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" width="500px" height="500px" />
-  <img src="QPot-figure/Stab-1.png" style="width: 300px;"/>
 
- <img src="QPot-figure/crqp-1.png" style="width: 500px;"/>
+<img src="QPot-figure/unnamed-chunk-35-1.png" title="plot of chunk unnamed-chunk-35" alt="plot of chunk unnamed-chunk-35" width="700px" height="700px" />
+<img src="QPot-figure/unnamed-chunk-36-1.png" title="plot of chunk unnamed-chunk-36" alt="plot of chunk unnamed-chunk-36" width="500px" height="313px" />
+<img src="QPot-figure/unnamed-chunk-37-1.png" title="plot of chunk unnamed-chunk-37" alt="plot of chunk unnamed-chunk-37" width="700px" height="700px" />
+
+Closing remarks
+========================================================
 
 
 Thank you
