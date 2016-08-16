@@ -6,28 +6,22 @@ autosize: true
 
 Cleveland R Users Group
 
-Some R notes, pt. I
+Modeling nature
 ========================================================
-- Packages I'll be using if you want to follow along
+*The physicist Heinz Pagels (1982) once observed that there seem to be two kinds of people in the world.*
 
-```r
-  library(package = "deSolve") # Solver for differential equations
-  library(package = "rootSolve") # Finds roots, Jacobian matrices, and estimates steady-state conditions
-  library(package = "phaseR") # Tools for graphing 
-  library(package = "MASS") # For 2-D density estimator
-  library(package = "QPot") # Our package!
-  library(package = "viridis") # Great color map
-```
-- For this presentation, I opened RStudio for the second time, and updated from v. ~2012
+1. **There are those who seek
+and find deterministic order and meaning, if not purpose,
+in every event.** 
+2. **And then there are those who believe
+events to be influenced, if not dominated, by intrinsically
+inscrutable, and meaningless, random chance.**
 
-Some R notes, pt. II
-========================================================
-### Based primarily on two works
-  1. Nolting and Abbott's *Ecology* paper
-    - B. C. Nolting and K. C. Abbott. Balls, cups, and quasi-potentials: Quantifying stability in stochastic systems. Ecology, 97(4):850–864, 2016. [Link](http://onlinelibrary.wiley.com/doi/10.1890/15-1047.1/abstract)
-  2. Our R package and paper
-    - C.M. Moore, C.R. Stieha, B.C. Nolting, M.K. Cameron, and K.C. Abbott. QPot: Quasi-Potential Analysis for Stochastic Differential Equations, 2016. URL [https://www.R-project.org/package=QPot](https://www.R-project.org/package=QPot). R package version 1.2.
-    - Moore, C.M., Stieha, C.R., Nolting, B.C., Cameron, M.K. and Abbott, K.C. 2015. QPot: An R Package for Stochastic Differential Equation Quasi-Potential Analysis. [arXiv preprint arXiv:1510.07992](http://arxiv.org/abs/1510.07992).
+*One of the intellectual triumphs of twentieth-century physics was to prove that both views of physical nature are simultaneously true and correct, but on very different spatial and temporal scales.*---S. Hubbell (2001), *The Unified Neutral Theory of Biodiversity and Biogeography* (Princeton, p. 7)
+
+<img src="QPot-figure/unnamed-chunk-1-1.png" title="plot of chunk unnamed-chunk-1" alt="plot of chunk unnamed-chunk-1" width="750px" height="500px" style="display: block; margin: auto;" />
+
+
 
 Ecology: a science of dynamics and complexity
 ========================================================
@@ -40,6 +34,27 @@ Ecology is hierarchically organized:
   - Ecosystems
 
 Today's focus, *population ecology*, is strongly quantitative and mathematical
+
+Some R notes, pt. I
+========================================================
+- Packages I'll be using if you want to follow along
+
+```r
+  library(package = "deSolve") # Solver for differential equations
+  library(package = "rootSolve") # Finds roots, Jacobian matrices, and estimates steady-state conditions
+  library(package = "phaseR") # Tools for graphing 
+  library(package = "MASS") # For 2-D density estimator
+  library(package = "QPot") # Our package!
+  library(package = "viridis") # Great color map
+```
+- For this presentation, I opened RStudio for the second time, and updated from v. 0.98.447 (current is v. 0.99.902)
+
+### Based primarily on two works
+  1. Nolting and Abbott's *Ecology* paper
+    - B. C. Nolting and K. C. Abbott. Balls, cups, and quasi-potentials: Quantifying stability in stochastic systems. Ecology, 97(4):850–864, 2016. [Link](http://onlinelibrary.wiley.com/doi/10.1890/15-1047.1/abstract)
+  2. Our R package and paper
+    - C.M. Moore, C.R. Stieha, B.C. Nolting, M.K. Cameron, and K.C. Abbott. QPot: Quasi-Potential Analysis for Stochastic Differential Equations, 2016. URL [https://www.R-project.org/package=QPot](https://www.R-project.org/package=QPot). R package version 1.2.
+    - Moore, C.M., Stieha, C.R., Nolting, B.C., Cameron, M.K. and Abbott, K.C. 2015. QPot: An R Package for Stochastic Differential Equation Quasi-Potential Analysis. [arXiv preprint arXiv:1510.07992](http://arxiv.org/abs/1510.07992).
 
 Differential equations: as models
 ========================================================
@@ -67,14 +82,20 @@ Differential equations: some examples, pt. II
 ========================================================
 Competition between species $~N_1$ and $~N_2$
 
-$$\frac{dN_1}{dt} = r_1N_1 - \alpha_{11} N_1N_1  - \beta_{21} N_2N_1 \\
-\frac{dN_2}{dt} = r_2N_2 - \alpha_{22} N_2N_2  - \beta_{12} N_1N_2$$
+$$
+  \frac{dN_1}{dt} = r_1N_1 - \alpha_{11} N_1N_1  - \beta_{21} N_2N_1 \\
+  \frac{dN_2}{dt} = r_2N_2 - \alpha_{22} N_2N_2  - \beta_{12} N_1N_2
+$$
 
 Disease model of susceptible, $~S$, infected $~I$, and recovered, $~R$
 
-$$\frac{dS}{dt} = \alpha S - \beta SI + \delta R - d_SS \\
-\frac{dI}{dt} = \beta SI -\gamma I - d_II \\
-\frac{dR}{dt} = \gamma I -\delta R - d_RR$$
+$$
+\begin{aligned}
+  \frac{dS}{dt} &= \alpha S - \beta SI + \delta R - d_SS \\
+  \frac{dI}{dt} &= \beta SI -\gamma I - d_II \\
+  \frac{dR}{dt} &= \gamma I -\delta R - d_RR
+\end{aligned}
+$$
 
 
 Differential equations in R: deSolve format, pt. I
@@ -89,7 +110,7 @@ Differential equations in R: deSolve format, pt. I
 
 Differential equations in R: deSolve format, pt. II
 ========================================================
-*The mathematics of uncontrolled growth are frigtening.*  **A single cell** *of the bacterium E. coli would, under ideal circumstances,* **divide every twenty minutes**.  *That is not particularly disturbing until you think about it, but the fact is that bacteria multiply geometrically: one becomes two, two become four, four become eight, and so on.  In this way,* **it can be shown that in a single day, one cell of E. coli could producece a super-colony equal in size and weight to the entire planet earth.**---M. Chrichton (1969), *The Andromeda Strain* (Dell, New York, p. 247)
+*The mathematics of uncontrolled growth are frigtening.*  **A single cell** *of the bacterium E. coli would, under ideal circumstances,* **divide every twenty minutes**.  *That is not particularly disturbing until you think about it, but the fact is that bacteria multiply geometrically: one becomes two, two become four, four become eight, and so on.  In this way,* **it can be shown that in a single day, one cell of E. coli could producece a super-colony equal in size and weight to the entire planet earth.**---Michael Crichton (1969), *The Andromeda Strain* (Dell, New York, p. 247)
 
 $$\frac{dx}{dt} = \alpha x = 2x$$
 
@@ -139,7 +160,6 @@ out[1:3,]
 
 Differential equations in R: plot deSolve::ode
 ========================================================
-left: 50%
 &nbsp;
 
 $$\frac{dx}{dt} = \alpha x = 2x$$
@@ -154,13 +174,14 @@ $$\frac{dx}{dt} = \alpha x = 2x$$
 plot(out[,1], out[,2], xlab = "Time", ylab = "x", type = "l", lwd = 2)
 ```
 
-<img src="QPot-figure/unnamed-chunk-5-1.png" title="plot of chunk unnamed-chunk-5" alt="plot of chunk unnamed-chunk-5" width="300px" height="300px" />
+<img src="QPot-figure/unnamed-chunk-6-1.png" title="plot of chunk unnamed-chunk-6" alt="plot of chunk unnamed-chunk-6" width="480px" height="480px" />
+
 ***
 &nbsp;  
 &nbsp;  
 &nbsp;  
 
-### Was Michael Chriton correct?
+### Was Michael Crichton correct?
 
 ```
 [1] "Mass of an E. coli cell = 1e-12 (g)"
@@ -230,7 +251,7 @@ plot(out[,1], out[,2], type = "l", col = "red", xlab = "Time", ylab = "Density o
 lines(out[,1], out[,3], col = "blue", lwd = 2)
 ```
 
-<img src="QPot-figure/unnamed-chunk-8-1.png" title="plot of chunk unnamed-chunk-8" alt="plot of chunk unnamed-chunk-8" width="1000px" height="666px" />
+<img src="QPot-figure/unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" width="1000px" height="666px" />
 
 Differential equations in R: competition in phase space
 ========================================================
@@ -240,7 +261,7 @@ plot(out[,2], out[,3], xlab = "Density of species 1", ylab = "Density of species
 points(out[1, 2], out[1, 3], pch = 16)
 ```
 
-<img src="QPot-figure/unnamed-chunk-9-1.png" title="plot of chunk unnamed-chunk-9" alt="plot of chunk unnamed-chunk-9" width="600px" height="600px" />
+<img src="QPot-figure/unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" width="600px" height="600px" />
 
 Differential equations in R: competition trajectories
 ========================================================
@@ -255,7 +276,7 @@ for (i in 1:25){
 }
 ```
 
-<img src="QPot-figure/unnamed-chunk-10-1.png" title="plot of chunk unnamed-chunk-10" alt="plot of chunk unnamed-chunk-10" width="600px" height="600px" />
+<img src="QPot-figure/unnamed-chunk-11-1.png" title="plot of chunk unnamed-chunk-11" alt="plot of chunk unnamed-chunk-11" width="600px" height="600px" />
 
 Differential equations in R: phaseR::flowField format
 ========================================================
@@ -279,8 +300,8 @@ Differential equations in R: phaseR::flowField plot
 ff <- flowField(deriv = comp, x.lim = c(0, 10), y.lim = c(0, 10), parameters = parameters, points = 20, add = F, col = "black", arrow.type = "equal")
 ```
 
-<img src="QPot-figure/unnamed-chunk-12-1.png" title="plot of chunk unnamed-chunk-12" alt="plot of chunk unnamed-chunk-12" width="800px" height="800px" />
 <img src="QPot-figure/unnamed-chunk-13-1.png" title="plot of chunk unnamed-chunk-13" alt="plot of chunk unnamed-chunk-13" width="800px" height="800px" />
+<img src="QPot-figure/unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" width="800px" height="800px" />
 
 Differential equations in R: phaseR::flowField trajectories
 ========================================================
@@ -293,7 +314,7 @@ for (i in 1:25){
 }
 ```
 
-<img src="QPot-figure/unnamed-chunk-14-1.png" title="plot of chunk unnamed-chunk-14" alt="plot of chunk unnamed-chunk-14" width="600px" height="600px" />
+<img src="QPot-figure/unnamed-chunk-15-1.png" title="plot of chunk unnamed-chunk-15" alt="plot of chunk unnamed-chunk-15" width="600px" height="600px" />
 
 Differential equations in R: competitive exclusion
 ========================================================
@@ -321,8 +342,8 @@ $$\frac{dR}{dt} = bR - cRC \\
 ff <- flowField(deriv = prey.predator, x.lim = c(0, 3), y.lim = c(0, 3), parameters = parameters, points = 20, add = F, col = "black", xlab = "R", ylab = "C")
 ```
 
-<img src="QPot-figure/unnamed-chunk-16-1.png" title="plot of chunk unnamed-chunk-16" alt="plot of chunk unnamed-chunk-16" width="600px" height="600px" />
-<img src="QPot-figure/unnamed-chunk-17-1.png" title="plot of chunk unnamed-chunk-17" alt="plot of chunk unnamed-chunk-17" width="600px" height="600px" /><img src="QPot-figure/unnamed-chunk-17-2.png" title="plot of chunk unnamed-chunk-17" alt="plot of chunk unnamed-chunk-17" width="600px" height="600px" />
+<img src="QPot-figure/unnamed-chunk-17-1.png" title="plot of chunk unnamed-chunk-17" alt="plot of chunk unnamed-chunk-17" width="600px" height="600px" />
+<img src="QPot-figure/unnamed-chunk-18-1.png" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" width="600px" height="600px" /><img src="QPot-figure/unnamed-chunk-18-2.png" title="plot of chunk unnamed-chunk-18" alt="plot of chunk unnamed-chunk-18" width="600px" height="600px" />
 
 Differential equations in R: unstable behaviors, pt. I
 ========================================================
@@ -335,8 +356,8 @@ ff <- flowField(deriv = mut, x.lim = c(0, 2), y.lim = c(0, 2), parameters = para
 nc <- nullclines(deriv = mut, x.lim = c(0, 2), y.lim = c(0, 2), parameters = parameters, lwd = 2)
 ```
 
-<img src="QPot-figure/unnamed-chunk-19-1.png" title="plot of chunk unnamed-chunk-19" alt="plot of chunk unnamed-chunk-19" width="600px" height="600px" />
 <img src="QPot-figure/unnamed-chunk-20-1.png" title="plot of chunk unnamed-chunk-20" alt="plot of chunk unnamed-chunk-20" width="600px" height="600px" />
+<img src="QPot-figure/unnamed-chunk-21-1.png" title="plot of chunk unnamed-chunk-21" alt="plot of chunk unnamed-chunk-21" width="600px" height="600px" />
 
 Differential equations in R: unstable behaviors, pt. II
 ========================================================
@@ -349,8 +370,8 @@ ff <- flowField(deriv = mut, x.lim = c(0, 2), y.lim = c(0, 2), parameters = para
 nc <- nullclines(deriv = mut, x.lim = c(0, 2), y.lim = c(0, 2), parameters = parameters, lwd = 2)
 ```
 
-<img src="QPot-figure/unnamed-chunk-22-1.png" title="plot of chunk unnamed-chunk-22" alt="plot of chunk unnamed-chunk-22" width="600px" height="600px" />
 <img src="QPot-figure/unnamed-chunk-23-1.png" title="plot of chunk unnamed-chunk-23" alt="plot of chunk unnamed-chunk-23" width="600px" height="600px" />
+<img src="QPot-figure/unnamed-chunk-24-1.png" title="plot of chunk unnamed-chunk-24" alt="plot of chunk unnamed-chunk-24" width="600px" height="600px" />
 
 Stochasticity: its role in ecology and stability
 ========================================================
@@ -380,7 +401,7 @@ QPOT: stochastic simulations, time series
 TSPlot(mat = ts, deltat = model.deltat)
 ```
 
-<img src="QPot-figure/unnamed-chunk-25-1.png" title="plot of chunk unnamed-chunk-25" alt="plot of chunk unnamed-chunk-25" width="1500px" height="750px" />
+<img src="QPot-figure/unnamed-chunk-26-1.png" title="plot of chunk unnamed-chunk-26" alt="plot of chunk unnamed-chunk-26" width="1500px" height="750px" />
 
 QPOT: stochastic simulations, realization and density
 ========================================================
@@ -390,13 +411,13 @@ TSPlot(ts, deltat = model.deltat, dim = 2)
 TSDensity(mat = ts, deltat = model.deltat, dim = 2, col2d = viridis(100, option = "A"))
 ```
 
-<img src="QPot-figure/unnamed-chunk-27-1.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="800px" height="800px" /><img src="QPot-figure/unnamed-chunk-27-2.png" title="plot of chunk unnamed-chunk-27" alt="plot of chunk unnamed-chunk-27" width="800px" height="800px" />
+<img src="QPot-figure/unnamed-chunk-28-1.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="800px" height="800px" /><img src="QPot-figure/unnamed-chunk-28-2.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="800px" height="800px" />
 
 QPOT: what is the quasi-potential
 ========================================================
 The potential relates to the work needed to move from one point to another, with the areas of least potential at surface minima.
 
-<img src="QPot-figure/unnamed-chunk-28-1.png" title="plot of chunk unnamed-chunk-28" alt="plot of chunk unnamed-chunk-28" width="800px" height="500px" />
+<img src="QPot-figure/unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="800px" height="500px" />
 
 **The quasi-potential is a tool that yields information about properties of stochastic systems, such as the expected time to escape a basin of attraction, the expected frequency of transitions between basins, and the stationary probability distribution.**
 
@@ -415,22 +436,27 @@ Sources for more information
 
 QPOT: competition example, revisited
 ========================================================
- ![](QPot-figure/CE-1.png)
+<img src="QPot-figure/CE-1.png" width="800px" height="800px" />
+
 
 QPOT: competition example, with stochasticity
 ========================================================
-<img src="QPot-figure/unnamed-chunk-29-1.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-29-2.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-29-3.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-29-4.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-29-5.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-29-6.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-29-7.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-29-8.png" title="plot of chunk unnamed-chunk-29" alt="plot of chunk unnamed-chunk-29" width="500px" height="500px" />
+<img src="QPot-figure/unnamed-chunk-30-1.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-30-2.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-30-3.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-30-4.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-30-5.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-30-6.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-30-7.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="500px" height="500px" /><img src="QPot-figure/unnamed-chunk-30-8.png" title="plot of chunk unnamed-chunk-30" alt="plot of chunk unnamed-chunk-30" width="500px" height="500px" />
 
 
 QPOT: competition example, finding stable equilibrium points
 ========================================================
 ## Analytically
- $$\frac{dN_1}{dt} = r_1N_1 - \alpha_{11} N_1N_1  - \beta_{21} N_2N_1 \\
- 0 = r_1N_1 - \alpha_{11} N_1N_1  - \beta_{21} N_2N_1 \\
- 0 = N_1\left(r_1 - \alpha_{11} N_1  - \beta_{21} N_2\right) \\
- 0 = r_1 - \alpha_{11} N_1  - \beta_{21} N_2 \\
- \alpha_{11} N_1 = r_1 - \beta_{21} N_2 \\
- N_1^* = \frac{r_1 - \beta_{21} N_2}{\alpha_{11}}$$
+ $$
+ \begin{aligned}
+  \frac{dN_1}{dt} &= r_1N_1 - \alpha_{11} N_1N_1  - \beta_{21} N_2N_1 \\
+  0 &= r_1N_1 - \alpha_{11} N_1N_1  - \beta_{21} N_2N_1 \\
+  0 &= N_1\left(r_1 - \alpha_{11} N_1  - \beta_{21} N_2\right) \\
+  0 &= r_1 - \alpha_{11} N_1  - \beta_{21} N_2 \\
+  \alpha_{11} N_1 &= r_1 - \beta_{21} N_2 \\
+  N_1^* &= \frac{r_1 - \beta_{21} N_2}{\alpha_{11}}
+  \end{aligned}
+$$
 
 ## Numerically
 - deSolve::ode
@@ -441,20 +467,20 @@ QPOT: competition example, local quasi-potential
 
 ```r
 ce <- Model2String(model = comp, parms = parameters.ce, deSolve.form = T)
-local.1 <- QPotential(x.rhs = ce[1], x.start = 0, x.bound = c(-5, 15), x.num.steps = 2000, y.rhs = ce[2], y.start = 10, y.bound = c(-5, 15), y.num.steps = 2000)
-QPContour(surface = local.1, dens = c(500, 500), x.bound = c(-1, 15), y.bound = c(-1, 15))
+bnd.x <- c(-5, 15); bnd.y <- c(-5, 15)
+local.1 <- QPotential(x.rhs = ce[1], x.start = 0, x.bound = bnd.x, x.num.steps = 2000, y.rhs = ce[2], y.start = 10, y.bound = c(-5, 15), y.num.steps = 2000)
+QPContour(surface = local.1, dens = c(500, 500), x.bound = bnd.x, y.bound = bnd.y)
 ```
 
 
 
-<img src="QPot-figure/unnamed-chunk-32-1.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" width="600px" height="600px" /><img src="QPot-figure/unnamed-chunk-32-2.png" title="plot of chunk unnamed-chunk-32" alt="plot of chunk unnamed-chunk-32" width="600px" height="600px" />
+<img src="QPot-figure/unnamed-chunk-33-1.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="600px" height="600px" /><img src="QPot-figure/unnamed-chunk-33-2.png" title="plot of chunk unnamed-chunk-33" alt="plot of chunk unnamed-chunk-33" width="600px" height="600px" />
 
 QPOT: competition example, global quasi-potentials
 ========================================================
 
 ```r
 saddle <- steady(y = c(3,3), func = comp, parms = parameters.ce)
-saddle$y
 ```
 
 ```
@@ -463,21 +489,37 @@ saddle$y
 
 
 ```r
-global.qp <- QPGlobal(local.surfaces = list(local.1, local.2), unstable.eq.x = c(saddle$y[1]), unstable.eq.y = c(saddle$y[2]), x.bound = c(-5, 15), y.bound = c(-5, 15))
-QPContour(surface = global.qp, dens = c(1000, 1000), x.bound = c(-5, 15), y.bound = c(-5, 15), xlim = c(-1, 11), ylim = c(-1, 11))
+global.qp <- QPGlobal(local.surfaces = list(local.1, local.2), unstable.eq.x = c(saddle$y[1]), unstable.eq.y = c(saddle$y[2]), x.bound = bnd.x, y.bound = bnd.y)
+QPContour(surface = global.qp, dens = c(1000, 1000), x.bound = bnd.x, y.bound = bnd.y, xlim = c(-1, 11), ylim = c(-1, 11))
 ```
 
-<img src="QPot-figure/unnamed-chunk-34-1.png" title="plot of chunk unnamed-chunk-34" alt="plot of chunk unnamed-chunk-34" width="600px" height="600px" />
+<img src="QPot-figure/unnamed-chunk-35-1.png" title="plot of chunk unnamed-chunk-35" alt="plot of chunk unnamed-chunk-35" width="800px" height="800px" />
+
+QPOT: direction, gradient, and remainder fields
+========================================================
+
+
+```r
+VD <- VecDecomAll(surface = global.qp, x.rhs = ce[1], y.rhs = ce[2], x.bound = bnd.x, y.bound = bnd.y)
+VecDecomPlot(x.field = VD[,,1], y.field = VD[,,2], dens = c(20, 20), x.bound = bnd.x, y.bound = bnd.y)
+VecDecomPlot(x.field = VD[,,3], y.field = VD[,,4], dens = c(20, 20), x.bound = bnd.x, y.bound = bnd.y)
+VecDecomPlot(x.field = VD[,,5], y.field = VD[,,6], dens = c(20, 20), x.bound = bnd.x, y.bound = bnd.y)
+```
+
+<img src="QPot-figure/unnamed-chunk-37-1.png" title="plot of chunk unnamed-chunk-37" alt="plot of chunk unnamed-chunk-37" width="650px" height="650px" /><img src="QPot-figure/unnamed-chunk-37-2.png" title="plot of chunk unnamed-chunk-37" alt="plot of chunk unnamed-chunk-37" width="650px" height="650px" /><img src="QPot-figure/unnamed-chunk-37-3.png" title="plot of chunk unnamed-chunk-37" alt="plot of chunk unnamed-chunk-37" width="650px" height="650px" />
 
 QPOT: a disagreement in stability
 ========================================================
  $$
- \frac{dx(t)}{dt} = \alpha x(t)\left(1 - \frac{x(t)}{\beta}\right) - \frac{\delta x^2(t)y(t)}{\kappa + x^2(t)} \\
- \frac{dy(t)}{dt} = \frac{\gamma x^2(t)y(t)}{\kappa + x^2(t)} - \mu y^2(t)$$
+ \begin{aligned}
+  \frac{dx(t)}{dt} &= \alpha x(t)\left(1 - \frac{x(t)}{\beta}\right) - \frac{\delta x^2(t)y(t)}{\kappa + x^2(t)} \\
+  \frac{dy(t)}{dt} &= \frac{\gamma x^2(t)y(t)}{\kappa + x^2(t)} - \mu y^2(t)
+  \end{aligned}
+$$
 
-<img src="QPot-figure/unnamed-chunk-36-1.png" title="plot of chunk unnamed-chunk-36" alt="plot of chunk unnamed-chunk-36" width="700px" height="700px" />
-<img src="QPot-figure/unnamed-chunk-37-1.png" title="plot of chunk unnamed-chunk-37" alt="plot of chunk unnamed-chunk-37" width="500px" height="313px" />
-<img src="QPot-figure/unnamed-chunk-38-1.png" title="plot of chunk unnamed-chunk-38" alt="plot of chunk unnamed-chunk-38" width="700px" height="700px" />
+<img src="QPot-figure/unnamed-chunk-39-1.png" title="plot of chunk unnamed-chunk-39" alt="plot of chunk unnamed-chunk-39" width="700px" height="700px" />
+<img src="QPot-figure/unnamed-chunk-40-1.png" title="plot of chunk unnamed-chunk-40" alt="plot of chunk unnamed-chunk-40" width="500px" height="313px" />
+<img src="QPot-figure/unnamed-chunk-41-1.png" title="plot of chunk unnamed-chunk-41" alt="plot of chunk unnamed-chunk-41" width="700px" height="700px" />
 
 Closing remarks
 ========================================================

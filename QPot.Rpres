@@ -6,27 +6,30 @@ autosize: true
 
 Cleveland R Users Group
 
-Some R notes, pt. I
+Modeling nature
 ========================================================
-- Packages I'll be using if you want to follow along
-```{r}
-  library(package = "deSolve") # Solver for differential equations
-  library(package = "rootSolve") # Finds roots, Jacobian matrices, and estimates steady-state conditions
-  library(package = "phaseR") # Tools for graphing 
-  library(package = "MASS") # For 2-D density estimator
-  library(package = "QPot") # Our package!
-  library(package = "viridis") # Great color map
-```
-- For this presentation, I opened RStudio for the second time, and updated from v. ~2012
+*The physicist Heinz Pagels (1982) once observed that there seem to be two kinds of people in the world.*
 
-Some R notes, pt. II
-========================================================
-### Based primarily on two works
-  1. Nolting and Abbott's *Ecology* paper
-    - B. C. Nolting and K. C. Abbott. Balls, cups, and quasi-potentials: Quantifying stability in stochastic systems. Ecology, 97(4):850–864, 2016. [Link](http://onlinelibrary.wiley.com/doi/10.1890/15-1047.1/abstract)
-  2. Our R package and paper
-    - C.M. Moore, C.R. Stieha, B.C. Nolting, M.K. Cameron, and K.C. Abbott. QPot: Quasi-Potential Analysis for Stochastic Differential Equations, 2016. URL [https://www.R-project.org/package=QPot](https://www.R-project.org/package=QPot). R package version 1.2.
-    - Moore, C.M., Stieha, C.R., Nolting, B.C., Cameron, M.K. and Abbott, K.C. 2015. QPot: An R Package for Stochastic Differential Equation Quasi-Potential Analysis. [arXiv preprint arXiv:1510.07992](http://arxiv.org/abs/1510.07992).
+1. **There are those who seek
+and find deterministic order and meaning, if not purpose,
+in every event.** 
+2. **And then there are those who believe
+events to be influenced, if not dominated, by intrinsically
+inscrutable, and meaningless, random chance.**
+
+*One of the intellectual triumphs of twentieth-century physics was to prove that both views of physical nature are simultaneously true and correct, but on very different spatial and temporal scales.*---S. Hubbell (2001), *The Unified Neutral Theory of Biodiversity and Biogeography* (Princeton, p. 7)
+
+```{r, echo = F, fig.width = 6, fig.height = 4, out.width = "750px", out.height = "500px", fig.align = 'center', cache = T}
+x <- sample(x = seq(from = 0, to = 2*pi, by = 0.01), size = 50)
+y.pts <- sin(x)+rnorm(length(x),, 2) 
+par(mar = rep(0.1, 4), oma = rep(0.1, 4))
+plot(x, y.pts, type = "n", ann = F, xaxt = "n", yaxt = "n")
+polygon(c(-10, -10, 10, 10), c(-10, 10, 10, -10), col = rgb(0.1,0.5,0.9,0.05,,1), border = F)
+points(x, y.pts, pch = 21, bg = NA, cex = 2.5, col = "grey30")
+points(x, y.pts, pch = 21, bg = "#25679E88", cex = 2.5, col = NA)
+```
+
+
 
 Ecology: a science of dynamics and complexity
 ========================================================
@@ -39,6 +42,26 @@ Ecology is hierarchically organized:
   - Ecosystems
 
 Today's focus, *population ecology*, is strongly quantitative and mathematical
+
+Some R notes, pt. I
+========================================================
+- Packages I'll be using if you want to follow along
+```{r}
+  library(package = "deSolve") # Solver for differential equations
+  library(package = "rootSolve") # Finds roots, Jacobian matrices, and estimates steady-state conditions
+  library(package = "phaseR") # Tools for graphing 
+  library(package = "MASS") # For 2-D density estimator
+  library(package = "QPot") # Our package!
+  library(package = "viridis") # Great color map
+```
+- For this presentation, I opened RStudio for the second time, and updated from v. 0.98.447 (current is v. 0.99.902)
+
+### Based primarily on two works
+  1. Nolting and Abbott's *Ecology* paper
+    - B. C. Nolting and K. C. Abbott. Balls, cups, and quasi-potentials: Quantifying stability in stochastic systems. Ecology, 97(4):850–864, 2016. [Link](http://onlinelibrary.wiley.com/doi/10.1890/15-1047.1/abstract)
+  2. Our R package and paper
+    - C.M. Moore, C.R. Stieha, B.C. Nolting, M.K. Cameron, and K.C. Abbott. QPot: Quasi-Potential Analysis for Stochastic Differential Equations, 2016. URL [https://www.R-project.org/package=QPot](https://www.R-project.org/package=QPot). R package version 1.2.
+    - Moore, C.M., Stieha, C.R., Nolting, B.C., Cameron, M.K. and Abbott, K.C. 2015. QPot: An R Package for Stochastic Differential Equation Quasi-Potential Analysis. [arXiv preprint arXiv:1510.07992](http://arxiv.org/abs/1510.07992).
 
 Differential equations: as models
 ========================================================
@@ -66,14 +89,20 @@ Differential equations: some examples, pt. II
 ========================================================
 Competition between species $~N_1$ and $~N_2$
 
-$$\frac{dN_1}{dt} = r_1N_1 - \alpha_{11} N_1N_1  - \beta_{21} N_2N_1 \\
-\frac{dN_2}{dt} = r_2N_2 - \alpha_{22} N_2N_2  - \beta_{12} N_1N_2$$
+$$
+  \frac{dN_1}{dt} = r_1N_1 - \alpha_{11} N_1N_1  - \beta_{21} N_2N_1 \\
+  \frac{dN_2}{dt} = r_2N_2 - \alpha_{22} N_2N_2  - \beta_{12} N_1N_2
+$$
 
 Disease model of susceptible, $~S$, infected $~I$, and recovered, $~R$
 
-$$\frac{dS}{dt} = \alpha S - \beta SI + \delta R - d_SS \\
-\frac{dI}{dt} = \beta SI -\gamma I - d_II \\
-\frac{dR}{dt} = \gamma I -\delta R - d_RR$$
+$$
+\begin{aligned}
+  \frac{dS}{dt} &= \alpha S - \beta SI + \delta R - d_SS \\
+  \frac{dI}{dt} &= \beta SI -\gamma I - d_II \\
+  \frac{dR}{dt} &= \gamma I -\delta R - d_RR
+\end{aligned}
+$$
 
 
 Differential equations in R: deSolve format, pt. I
@@ -88,7 +117,7 @@ Differential equations in R: deSolve format, pt. I
 
 Differential equations in R: deSolve format, pt. II
 ========================================================
-*The mathematics of uncontrolled growth are frigtening.*  **A single cell** *of the bacterium E. coli would, under ideal circumstances,* **divide every twenty minutes**.  *That is not particularly disturbing until you think about it, but the fact is that bacteria multiply geometrically: one becomes two, two become four, four become eight, and so on.  In this way,* **it can be shown that in a single day, one cell of E. coli could producece a super-colony equal in size and weight to the entire planet earth.**---M. Chrichton (1969), *The Andromeda Strain* (Dell, New York, p. 247)
+*The mathematics of uncontrolled growth are frigtening.*  **A single cell** *of the bacterium E. coli would, under ideal circumstances,* **divide every twenty minutes**.  *That is not particularly disturbing until you think about it, but the fact is that bacteria multiply geometrically: one becomes two, two become four, four become eight, and so on.  In this way,* **it can be shown that in a single day, one cell of E. coli could producece a super-colony equal in size and weight to the entire planet earth.**---Michael Crichton (1969), *The Andromeda Strain* (Dell, New York, p. 247)
 
 $$\frac{dx}{dt} = \alpha x = 2x$$
 
@@ -123,22 +152,22 @@ out[1:3,]
 
 Differential equations in R: plot deSolve::ode
 ========================================================
-left: 50%
 &nbsp;
 
 $$\frac{dx}{dt} = \alpha x = 2x$$
 
-```{r echo = 3, fig.width=3, fig.height=3, out.width="300px", out.height="300px", dev.args=list(pointsize=8)}
+```{r echo = 3, fig.width=4, fig.height=4, out.width="480px", out.height="480px", dpi=300, cache = T}
 out[nrow(out),]
 par(mar=c(4, 4, 0, 0), oma = c(0, 0, 1, 1))
 plot(out[,1], out[,2], xlab = "Time", ylab = "x", type = "l", lwd = 2)
 ```
+
 ***
 &nbsp;  
 &nbsp;  
 &nbsp;  
 
-### Was Michael Chriton correct?
+### Was Michael Crichton correct?
 ```{r, echo = F}
 e.coli.cell <- 1*10^-12
 total.mass <- e.coli.cell*out[nrow(out),2]
@@ -195,7 +224,7 @@ lines(out[,1], out[,3], col = "blue", lwd = 2)
 
 Differential equations in R: competition in phase space
 ========================================================
-```{r echo=2:3, fig.width=5, fig.height=5, out.width="600px", out.height="600px", dpi=300}
+```{r echo=2:3, fig.width=4, fig.height=4, out.width="600px", out.height="600px", dpi=300, cache=T}
 par(mar=c(4, 4, 0, 0), oma = c(0, 0, 1, 1))
 plot(out[,2], out[,3], xlab = "Density of species 1", ylab = "Density of species 2", type = "l", lwd = 2, xlim = c(0, 10), ylim = c(0, 10))
 points(out[1, 2], out[1, 3], pch = 16)
@@ -203,7 +232,7 @@ points(out[1, 2], out[1, 3], pch = 16)
 
 Differential equations in R: competition trajectories
 ========================================================
-```{r echo=-1, fig.width=5, fig.height=5, out.width="600px", out.height="600px", dpi=300, cache=TRUE}
+```{r echo=-1, fig.width=4, fig.height=4, out.width="600px", out.height="600px", dpi=300, cache=TRUE}
 par(mar=c(4, 4, 0, 0), oma = c(0, 0, 1, 1))
 plot(out[,2], out[,3], xlab = "Density of species 1", ylab = "Density of species 2", type = "l", lwd = 3, xlim = c(0, 10), ylim = c(0, 10))
 for (i in 1:25){
@@ -241,7 +270,7 @@ ff <- flowField(deriv = comp, x.lim = c(0, 10), y.lim = c(0, 10), parameters = p
 
 Differential equations in R: phaseR::flowField trajectories
 ========================================================
-```{r echo=-1, fig.width=5, fig.height=5, out.width="600px", out.height="600px", dpi=300, cache=TRUE}
+```{r echo=-1, fig.width=4, fig.height=4, out.width="600px", out.height="600px", dpi=300, cache=TRUE}
 par(mar=c(4, 4, 0, 0), oma = c(0, 0, 1, 1))
 ff <- flowField(deriv = comp, x.lim = c(0, 10), y.lim = c(0, 10), parameters = parameters, points = 20, add = F, col = "grey50")
 for (i in 1:25){
@@ -252,7 +281,7 @@ for (i in 1:25){
 
 Differential equations in R: competitive exclusion
 ========================================================
-```{r CE, echo=-2, include = T,  fig.width=5, fig.height=5, out.width="600px", out.height="600px", dpi=300, cache=TRUE}
+```{r CE, echo=-2, include = T,  fig.width=4, fig.height=4, out.width="600px", out.height="600px", dpi=300, cache=TRUE}
 parameters.ce <- c(r1 = 1, r2 = 1, a11 = 0.1, a22 = 0.1, b21 = 0.25, b12 = 0.25)
 par(mar=c(4, 4, 0, 0), oma = c(0, 0, 1, 1))
 ff <- flowField(deriv = comp, x.lim = c(0, 10), y.lim = c(0, 10), parameters = parameters.ce, points = 20, add = F, col = "grey50")
@@ -314,12 +343,12 @@ parameters <- c(a = 2, b = 2, c = 0.5)
 ```
 $$\frac{dN_1}{dt} = r_1N_1 - \alpha _{11}N_1^2 + \beta _{21}N_2N_1 \\
 \frac{dN_2}{dt} = r_2N_2 - \alpha _{22}N_2^2 + \beta _{12}N_1N_2$$
-```{r echo=-1, fig.width=5, fig.height=5, out.width="600px", out.height="600px", dpi=300, cache=TRUE}
+```{r echo=-1, fig.width=4, fig.height=4, out.width="600px", out.height="600px", dpi=300, cache=TRUE}
 par(mar=c(4, 4, 0, 0), oma = c(0, 0, 1, 1))
 ff <- flowField(deriv = mut, x.lim = c(0, 2), y.lim = c(0, 2), parameters = parameters, points = 20, add = F, col = "black")
 nc <- nullclines(deriv = mut, x.lim = c(0, 2), y.lim = c(0, 2), parameters = parameters, lwd = 2)
 ```
-```{r echo = F, fig.width=5, fig.height=5, out.width="600px", out.height="600px", dpi=300, cache=TRUE}
+```{r echo = F, fig.width=4, fig.height=4, out.width="600px", out.height="600px", dpi=300, cache=TRUE}
 par(mar=c(4, 4, 0, 0), oma = c(0, 0, 1, 1))
 ff <- flowField(deriv = mut, x.lim = c(0, 2), y.lim = c(0, 2), parameters = parameters, points = 20, add = F, col = "grey50")
     nc <- nullclines(deriv = mut, x.lim = c(0, 2), y.lim = c(0, 2), parameters = parameters, lwd = 2)
@@ -337,7 +366,7 @@ parameters <- c(a = 2, b = 2, c = 2)
 ```
 $$\frac{dN_1}{dt} = r_1N_1 - \alpha _{11}N_1^2 + \beta _{21}N_2N_1 \\
 \frac{dN_2}{dt} = r_2N_2 - \alpha _{22}N_2^2 + \beta _{12}N_1N_2$$
-```{r echo=-1, fig.width=5, fig.height=5, out.width="600px", out.height="600px", dpi=300, cache=TRUE}
+```{r echo=-1, fig.width=4, fig.height=4, out.width="600px", out.height="600px", dpi=300, cache=TRUE}
 par(mar=c(4, 4, 0, 0), oma = c(0, 0, 1, 1))
 ff <- flowField(deriv = mut, x.lim = c(0, 2), y.lim = c(0, 2), parameters = parameters, points = 20, add = F, col = "black")
 nc <- nullclines(deriv = mut, x.lim = c(0, 2), y.lim = c(0, 2), parameters = parameters, lwd = 2)
@@ -386,7 +415,7 @@ TSPlot(ts, deltat = model.deltat, dim = 2)
 TSDensity(mat = ts, deltat = model.deltat, dim = 2, col2d = viridis(100, option = "A"))
 ```
 
-```{r echo=F, fig.width=5, fig.height=5, out.width="800px", out.height="800px", dpi=300, cache=TRUE}
+```{r echo=F, fig.width=4, fig.height=4, out.width="800px", out.height="800px", dpi=300, cache=TRUE}
 par(mar=c(4, 4, 0, 0), oma = c(0, 0, 1, 1))
 TSPlot(mat = ts, deltat = model.deltat, dim = 2, line.alpha = 175, las = 0)
 TSDensity(mat = ts, deltat = model.deltat, dim = 2, col2d = viridis(100, option = "A"))
@@ -426,11 +455,12 @@ Sources for more information
 
 QPOT: competition example, revisited
 ========================================================
- ![](QPot-figure/CE-1.png)
+<img src="QPot-figure/CE-1.png" width="800px" height="800px" />
+
 
 QPOT: competition example, with stochasticity
 ========================================================
-```{r echo = F, fig.width=5, fig.height=5, out.width="500px", out.height="500px", dpi=300, cache=TRUE}
+```{r echo = F, fig.width=4, fig.height=4, out.width="500px", out.height="500px", dpi=300, cache=TRUE}
 par(mar=c(4, 4, 0, 0), oma = c(0, 0, 1, 1))
 model.deltat <- 0.1
 ms <- Model2String(model = comp, parms = parameters.ce, deSolve.form = T, supress.print = T)
@@ -445,12 +475,16 @@ arrows(0,0,10,10, col = "#FF000077", lwd = 2, lty = "F4")
 QPOT: competition example, finding stable equilibrium points
 ========================================================
 ## Analytically
- $$\frac{dN_1}{dt} = r_1N_1 - \alpha_{11} N_1N_1  - \beta_{21} N_2N_1 \\
- 0 = r_1N_1 - \alpha_{11} N_1N_1  - \beta_{21} N_2N_1 \\
- 0 = N_1\left(r_1 - \alpha_{11} N_1  - \beta_{21} N_2\right) \\
- 0 = r_1 - \alpha_{11} N_1  - \beta_{21} N_2 \\
- \alpha_{11} N_1 = r_1 - \beta_{21} N_2 \\
- N_1^* = \frac{r_1 - \beta_{21} N_2}{\alpha_{11}}$$
+ $$
+ \begin{aligned}
+  \frac{dN_1}{dt} &= r_1N_1 - \alpha_{11} N_1N_1  - \beta_{21} N_2N_1 \\
+  0 &= r_1N_1 - \alpha_{11} N_1N_1  - \beta_{21} N_2N_1 \\
+  0 &= N_1\left(r_1 - \alpha_{11} N_1  - \beta_{21} N_2\right) \\
+  0 &= r_1 - \alpha_{11} N_1  - \beta_{21} N_2 \\
+  \alpha_{11} N_1 &= r_1 - \beta_{21} N_2 \\
+  N_1^* &= \frac{r_1 - \beta_{21} N_2}{\alpha_{11}}
+  \end{aligned}
+$$
 
 ## Numerically
 - deSolve::ode
@@ -460,42 +494,65 @@ QPOT: competition example, local quasi-potential
 ========================================================
 ```{r eval = F}
 ce <- Model2String(model = comp, parms = parameters.ce, deSolve.form = T)
-local.1 <- QPotential(x.rhs = ce[1], x.start = 0, x.bound = c(-5, 15), x.num.steps = 2000, y.rhs = ce[2], y.start = 10, y.bound = c(-5, 15), y.num.steps = 2000)
-QPContour(surface = local.1, dens = c(500, 500), x.bound = c(-1, 15), y.bound = c(-1, 15))
+bnd.x <- c(-5, 15); bnd.y <- c(-5, 15)
+local.1 <- QPotential(x.rhs = ce[1], x.start = 0, x.bound = bnd.x, x.num.steps = 2000, y.rhs = ce[2], y.start = 10, y.bound = c(-5, 15), y.num.steps = 2000)
+QPContour(surface = local.1, dens = c(500, 500), x.bound = bnd.x, y.bound = bnd.y)
 ```
 
 ```{r results = 'hide', echo = F, cache=TRUE}
 ce <- Model2String(model = comp, parms = parameters.ce, deSolve.form = T)
-local.1 <- QPotential(x.rhs = ce[1], x.start = 0, x.bound = c(-5, 15), x.num.steps = 2000, y.rhs = ce[2], y.start = 10, y.bound = c(-5, 15), y.num.steps = 2000, verboseR = F, verboseC = F)
-local.2 <- QPotential(x.rhs = ce[1], x.start = 10, x.bound = c(-5, 15), x.num.steps = 2000, y.rhs = ce[2], y.start = 0, y.bound = c(-5, 15), y.num.steps = 2000, verboseR = F, verboseC = F)
+bnd.x <- c(-5, 15); bnd.y <- c(-5, 15)
+local.1 <- QPotential(x.rhs = ce[1], x.start = 0, x.bound = bnd.x, x.num.steps = 2000, y.rhs = ce[2], y.start = 10, y.bound = bnd.y, y.num.steps = 2000, verboseR = F, verboseC = F)
+local.2 <- QPotential(x.rhs = ce[1], x.start = 10, x.bound = bnd.x, x.num.steps = 2000, y.rhs = ce[2], y.start = 0, y.bound = bnd.y, y.num.steps = 2000, verboseR = F, verboseC = F)
 ```
 
-```{r echo = F, fig.width=5, fig.height=5, out.width="600px", out.height="600px", dpi=300, cache=TRUE}
+```{r echo = F, fig.width=4, fig.height=4, out.width="600px", out.height="600px", dpi=300, cache=TRUE}
 par(mar=c(4, 4, 0, 0), oma = c(0, 0, 1, 1))
-QPContour(surface = local.1, dens = c(500, 500), x.bound = c(-1, 15), y.bound = c(-1, 15))
-QPContour(surface = local.2, dens = c(500, 500), x.bound = c(-5, 15), y.bound = c(-1, 15))
+QPContour(surface = local.1, dens = c(500, 500), x.bound = bnd.x, y.bound = c(-1, 15))
+QPContour(surface = local.2, dens = c(500, 500), x.bound = bnd.y, y.bound = c(-1, 15))
 ```
 
 QPOT: competition example, global quasi-potentials
 ========================================================
-```{r}
+```{r, echo=-2}
 saddle <- steady(y = c(3,3), func = comp, parms = parameters.ce)
 saddle$y
 ```
 
-```{r echo = -c(2, 3, 5), fig.width=5, fig.height=5, out.width="600px", out.height="600px", dpi=300, cache=TRUE}
-global.qp <- QPGlobal(local.surfaces = list(local.1, local.2), unstable.eq.x = c(saddle$y[1]), unstable.eq.y = c(saddle$y[2]), x.bound = c(-5, 15), y.bound = c(-5, 15))
+```{r echo = -c(2, 3, 5), fig.width=4, fig.height=4, out.width="800px", out.height="800px", dpi=300, cache=TRUE}
+global.qp <- QPGlobal(local.surfaces = list(local.1, local.2), unstable.eq.x = c(saddle$y[1]), unstable.eq.y = c(saddle$y[2]), x.bound = bnd.x, y.bound = bnd.y)
 global.qp[is.na(global.qp) == T] <- max(global.qp, na.rm = T)
 par(mar=c(4, 4, 0, 0), oma = c(0, 0, 1, 1))
-QPContour(surface = global.qp, dens = c(1000, 1000), x.bound = c(-5, 15), y.bound = c(-5, 15), xlim = c(-1, 11), ylim = c(-1, 11))
+QPContour(surface = global.qp, dens = c(1000, 1000), x.bound = bnd.x, y.bound = bnd.y, xlim = c(-1, 11), ylim = c(-1, 11))
 abline(v = 0, h = 0, lwd = 2, lty = "FA", col = "red")
+```
+
+QPOT: direction, gradient, and remainder fields
+========================================================
+
+```{r eval = F}
+VD <- VecDecomAll(surface = global.qp, x.rhs = ce[1], y.rhs = ce[2], x.bound = bnd.x, y.bound = bnd.y)
+VecDecomPlot(x.field = VD[,,1], y.field = VD[,,2], dens = c(20, 20), x.bound = bnd.x, y.bound = bnd.y)
+VecDecomPlot(x.field = VD[,,3], y.field = VD[,,4], dens = c(20, 20), x.bound = bnd.x, y.bound = bnd.y)
+VecDecomPlot(x.field = VD[,,5], y.field = VD[,,6], dens = c(20, 20), x.bound = bnd.x, y.bound = bnd.y)
+```
+
+```{r echo = F, fig.width = 4, fig.height = 4, dpi = 300, out.width = "650px", out.height = "650px", cache = T}
+VDA <- VecDecomAll(surface = global.qp, x.rhs = ce[1], y.rhs = ce[2], x.bound = bnd.x, y.bound = bnd.y)
+par(mar=c(4, 4, 0, 0), oma = c(0, 0, 1, 1))
+VecDecomPlot(x.field = VDA[,,1], y.field = VDA[,,2], dens = c(20,20), x.bound = bnd.x, y.bound = bnd.y, tail.length = 0.5, head.length = 0.025, xlim = c(0, 11), ylim = c(0, 11), arrow.type = "equal")
+VecDecomPlot(x.field = VDA[,,3], y.field = VDA[,,4], dens = c(20,20), x.bound = bnd.x, y.bound = bnd.y, tail.length = 0.5, head.length = 0.025, xlim = c(0, 11), ylim = c(0, 11), arrow.type = "equal")
+VecDecomPlot(x.field = VDA[,,5], y.field = VDA[,,6], dens = c(20,20), x.bound = bnd.x, y.bound = bnd.y, tail.length = 0.5, head.length = 0.025, xlim = c(0, 11), ylim = c(0, 11), arrow.type = "equal")
 ```
 
 QPOT: a disagreement in stability
 ========================================================
  $$
- \frac{dx(t)}{dt} = \alpha x(t)\left(1 - \frac{x(t)}{\beta}\right) - \frac{\delta x^2(t)y(t)}{\kappa + x^2(t)} \\
- \frac{dy(t)}{dt} = \frac{\gamma x^2(t)y(t)}{\kappa + x^2(t)} - \mu y^2(t)$$
+ \begin{aligned}
+  \frac{dx(t)}{dt} &= \alpha x(t)\left(1 - \frac{x(t)}{\beta}\right) - \frac{\delta x^2(t)y(t)}{\kappa + x^2(t)} \\
+  \frac{dy(t)}{dt} &= \frac{\gamma x^2(t)y(t)}{\kappa + x^2(t)} - \mu y^2(t)
+  \end{aligned}
+$$
 ```{r results = 'hide', echo = F, cache=TRUE}
 	model.parms <- c(alpha = 1.54, beta = 10.14, delta = 1, gamma = 0.476, kappa = 1, mu = 0.112509)
   stab.points <- matrix(data = c(1.4049, 2.8081, 4.9040, 4.0619), ncol = 2, byrow = T)
@@ -520,7 +577,7 @@ QPOT: a disagreement in stability
 	ex1.global <- QPGlobal(local.surfaces = list(eq1.local, eq2.local), unstable.eq.x = unstable.x, unstable.eq.y = unstable.y, x.bound = bounds.x, y.bound = bounds.y)
 	ex1.global[is.na(ex1.global) == T] <- max(ex1.global, na.rm = T)
 ```
-```{r, echo = F, fig.width=5, fig.height=5, out.width="700px", out.height="700px", dpi=300, cache=TRUE}
+```{r, echo = F, fig.width=4, fig.height=4, out.width="700px", out.height="700px", dpi=300, cache=TRUE}
 	model.ex1 <- function(t, y, parameters) {
 		x <- y[1]
 		y <- y[2]
@@ -560,7 +617,7 @@ QPOT: a disagreement in stability
   arrows(pi+0.25, -0.9, pi+0.25, 1.1, code = 3, angle = 90, lwd = 3, col = "blue", length = 0.05)
   arrows(0, 1+0.3, 2*pi, 1+0.3, col = "orange", lwd = 3, code = 3, angle = 90, length = 0.05)
 ```
-```{r echo = F, fig.width=5, fig.height=5, out.width="700px", out.height="700px", dpi=300}
+```{r echo = F, fig.width=4, fig.height=4, out.width="700px", out.height="700px", dpi=300}
 	par(mar=c(4, 4, 0, 0), oma = c(0, 0, 1, 1))
   QPContour(surface = ex1.global, dens = c(1000, 1000), x.bound = bounds.x, y.bound = bounds.y, c.parm = 5, xlim = xlims, ylim = ylims, col.contour = rev(magma(100)))
 ```
