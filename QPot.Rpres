@@ -3,9 +3,6 @@ QPOT: Quasi-POTential analysis for stochastic differential equations
 author: Christopher M. Moore
 date: 17 August 2016
 autosize: true
-width: 1440
-height: 900
-
 
 Cleveland R Users Group
 
@@ -26,7 +23,7 @@ Some R notes, pt. II
 ========================================================
 ### Based primarily on two works
   1. Nolting and Abbott's *Ecology* paper
-    - B. C. Nolting and K. C. Abbott. Balls, cups, and quasi-potentials: Quantifying stability in stochastic systems. Ecology, 97(4):850–864, 2016.
+    - B. C. Nolting and K. C. Abbott. Balls, cups, and quasi-potentials: Quantifying stability in stochastic systems. Ecology, 97(4):850–864, 2016. [Link](http://onlinelibrary.wiley.com/doi/10.1890/15-1047.1/abstract)
   2. Our R package and paper
     - C.M. Moore, C.R. Stieha, B.C. Nolting, M.K. Cameron, and K.C. Abbott. QPot: Quasi-Potential Analysis for Stochastic Differential Equations, 2016. URL [https://www.R-project.org/package=QPot](https://www.R-project.org/package=QPot). R package version 1.2.
     - Moore, C.M., Stieha, C.R., Nolting, B.C., Cameron, M.K. and Abbott, K.C. 2015. QPot: An R Package for Stochastic Differential Equation Quasi-Potential Analysis. [arXiv preprint arXiv:1510.07992](http://arxiv.org/abs/1510.07992).
@@ -126,12 +123,39 @@ out[1:3,]
 
 Differential equations in R: plot deSolve::ode
 ========================================================
+left: 50%
+&nbsp;
+
 $$\frac{dx}{dt} = \alpha x = 2x$$
 
-```{r echo = 3, fig.width=3, fig.height=3, out.width="600px", out.height="600px", dpi=300, dev.args=list(pointsize=8)}
+```{r echo = 3, fig.width=3, fig.height=3, out.width="300px", out.height="300px", dev.args=list(pointsize=8)}
 out[nrow(out),]
 par(mar=c(4, 4, 0, 0), oma = c(0, 0, 1, 1))
 plot(out[,1], out[,2], xlab = "Time", ylab = "x", type = "l", lwd = 2)
+```
+***
+&nbsp;  
+&nbsp;  
+&nbsp;  
+
+### Was Michael Chriton correct?
+```{r, echo = F}
+e.coli.cell <- 1*10^-12
+total.mass <- e.coli.cell*out[nrow(out),2]
+earth.mass <- 5.972*10^27
+paste0("Mass of an E. coli cell = ", format(e.coli.cell, digits = 2, scientific = T), " (g)")
+paste0("times ", format(out[nrow(out),2], digits = 2, scientific = T), " = ", format(total.mass, digits = 2, scientific = T), " (g)")
+paste0("The mass of Earth is = ", format(earth.mass, digits = 2, scientific = T), " (g)")
+if (total.mass > earth.mass) {paste0("MC was correct about mass")} else {paste0("MC was incorrect about mass")}
+
+e.coli.cell.v <- 1*10-18
+total.v <- e.coli.cell*out[nrow(out),2]
+earth.v <- 1097509500000000000000
+paste0("Volume of an E. coli cell = ", format(e.coli.cell.v, digits = 2, scientific = T), " (mm^3)")
+paste0("times ", format(out[nrow(out),2], digits = 2, scientific = T), " = ", format(total.v, digits = 2, scientific = T), " (mm^3)")
+paste0("The volume of Earth is = ", format(earth.v, digits = 2, scientific = T), " (g)")
+if (total.v > earth.v) {paste0("MC was correct about volume")} else {paste0("MC was incorrect about volume")}
+
 ```
 
 Differential equations in R: 2-D competition
@@ -469,8 +493,9 @@ abline(v = 0, h = 0, lwd = 2, lty = "FA", col = "red")
 
 QPOT: a disagreement in stability
 ========================================================
- $$\frac{dx(t)}{dt} = \alpha x(t)\left(1 - \frac{x(t)}{\beta}\right) - \frac{\delta x^2(t)y(t)}{\kappa + x^2(t)}$$
-$$\frac{dy(t)}{dt} = \frac{\gamma x^2(t)y(t)}{\kappa + x^2(t)} - \mu y^2(t)$$
+ $$
+ \frac{dx(t)}{dt} = \alpha x(t)\left(1 - \frac{x(t)}{\beta}\right) - \frac{\delta x^2(t)y(t)}{\kappa + x^2(t)} \\
+ \frac{dy(t)}{dt} = \frac{\gamma x^2(t)y(t)}{\kappa + x^2(t)} - \mu y^2(t)$$
 ```{r results = 'hide', echo = F, cache=TRUE}
 	model.parms <- c(alpha = 1.54, beta = 10.14, delta = 1, gamma = 0.476, kappa = 1, mu = 0.112509)
   stab.points <- matrix(data = c(1.4049, 2.8081, 4.9040, 4.0619), ncol = 2, byrow = T)
