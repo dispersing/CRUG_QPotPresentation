@@ -17,7 +17,8 @@ in every event.**
 events to be influenced, if not dominated, by intrinsically
 inscrutable, and meaningless, random chance.**
 
-*One of the intellectual triumphs of twentieth-century physics was to prove that both views of physical nature are simultaneously true and correct, but on very different spatial and temporal scales.*---S. Hubbell (2001), *The Unified Neutral Theory of Biodiversity and Biogeography* (Princeton, p. 7)
+<!-- *One of the intellectual triumphs of twentieth-century physics was to prove that both views of physical nature are simultaneously true and correct, but on very different spatial and temporal scales.* -->
+---S. Hubbell (2001), *The Unified Neutral Theory of Biodiversity and Biogeography* (Princeton, p. 7)
 
 <img src="QPot-figure/unnamed-chunk-1-1.png" title="plot of chunk unnamed-chunk-1" alt="plot of chunk unnamed-chunk-1" width="750px" height="500px" style="display: block; margin: auto;" />
 
@@ -54,7 +55,7 @@ Some R notes, pt. I
     - B. C. Nolting and K. C. Abbott. Balls, cups, and quasi-potentials: Quantifying stability in stochastic systems. Ecology, 97(4):850–864, 2016. [Link](http://onlinelibrary.wiley.com/doi/10.1890/15-1047.1/abstract)
   2. Our R package and paper
     - C.M. Moore, C.R. Stieha, B.C. Nolting, M.K. Cameron, and K.C. Abbott. QPot: Quasi-Potential Analysis for Stochastic Differential Equations, 2016. URL [https://www.R-project.org/package=QPot](https://www.R-project.org/package=QPot). R package version 1.2.
-    - Moore, C.M., Stieha, C.R., Nolting, B.C., Cameron, M.K. and Abbott, K.C. 2015. QPot: An R Package for Stochastic Differential Equation Quasi-Potential Analysis. [arXiv preprint arXiv:1510.07992](http://arxiv.org/abs/1510.07992).
+    - Moore, C.M., Stieha, C.R., Nolting, B.C., Cameron, M.K. and Abbott, K.C. 2015. QPot: An R Package for Stochastic Differential Equation Quasi-Potential Analysis. [arXiv preprint arXiv:1510.07992](http://arxiv.org/abs/1510.07992) or the most updated version (accapted and final version): [link](http://mutualismecology.com/publications/preprints/Moore_et_al._2016.pdf).
 
 Differential equations: as models
 ========================================================
@@ -103,20 +104,20 @@ Differential equations in R: deSolve format, pt. I
 `deSolve` has set the standard, with:
 
 - Function arguments
-  - time
-  - initial conditions as a named vector, `y0`, for each of the variables
-  - parameters as a named vector
+  - time vector (e.g., `seq(from = 0, to = 10, by = 0.1`)
+  - initial conditions as a named atomic vector, `y0`, for each of the variables; e.g., `c(a = 2, b = 3.5)`
+  - parameters as a named atomic vector; e.g., `c(alpha = 1, beta = 2)`
 - Returns a list of variable values
 
 Differential equations in R: deSolve format, pt. II
 ========================================================
-*The mathematics of uncontrolled growth are frigtening.*  **A single cell** *of the bacterium E. coli would, under ideal circumstances,* **divide every twenty minutes**.  *That is not particularly disturbing until you think about it, but the fact is that bacteria multiply geometrically: one becomes two, two become four, four become eight, and so on.  In this way,* **it can be shown that in a single day, one cell of E. coli could producece a super-colony equal in size and weight to the entire planet earth.**---Michael Crichton (1969), *The Andromeda Strain* (Dell, New York, p. 247)
+*The mathematics of uncontrolled growth are frightening.*  **A single cell** *of the bacterium E. coli would, under ideal circumstances,* **divide every twenty minutes**.  *That is not particularly disturbing until you think about it, but the fact is that bacteria multiply geometrically: one becomes two, two become four, four become eight, and so on.  In this way,* **it can be shown that in a single day, one cell of E. coli could produce a super-colony equal in size and weight to the entire planet earth.**---Michael Crichton (1969), *The Andromeda Strain* (Dell, New York, p. 247)
 
-$$\frac{dx}{dt} = \alpha x = 2x$$
+$$\frac{dx}{dt} = \alpha x = (1)x$$
 
 Differential equations in R: deSolve format, pt. III
 ========================================================
-$$\frac{dx}{dt} = \alpha x = 2x$$
+$$\frac{dx}{dt} = \alpha x = (1)x$$
 
 ```r
 growth <- function(t, y0, parameters){
@@ -129,45 +130,45 @@ growth <- function(t, y0, parameters){
 
 
 ```r
-growth(y0 = c(x = 1), parameters = c(alpha = 2))
+growth(y0 = c(x = 1), parameters = c(alpha = 1))
 ```
 
 ```
 [[1]]
-[1] 2
+[1] 1
 ```
 
 Differential equations in R: deSolve::ode
 ========================================================
-$$\frac{dx}{dt} = \alpha x = 2x$$
+$$\frac{dx}{dt} = \alpha x = (1)x$$
 
 
 ```r
 start <- c(x = 1)
-parameters <- c(alpha = 2)
-hours <- seq(from = 0, to = 24, by = (1/3))
+parameters <- c(alpha = 1)
+minutes <- seq(from = 0, to = 3*24, by = 1)
 
-out <- ode(y = start, times = hours, func = growth, parms = parameters)
+out <- ode(y = start, times = minutes, func = growth, parms = parameters, method = "euler")
 out[1:3,]
 ```
 
 ```
-          time        x
-[1,] 0.0000000 1.000000
-[2,] 0.3333333 1.947737
-[3,] 0.6666667 3.793677
+     time x
+[1,]    0 1
+[2,]    1 2
+[3,]    2 4
 ```
 
 Differential equations in R: plot deSolve::ode
 ========================================================
 &nbsp;
 
-$$\frac{dx}{dt} = \alpha x = 2x$$
+$$\frac{dx}{dt} = \alpha x = (1)x$$
 
 
 ```
         time            x 
-2.400000e+01 7.017045e+20 
+7.200000e+01 4.722366e+21 
 ```
 
 ```r
@@ -188,7 +189,7 @@ plot(out[,1], out[,2], xlab = "Time", ylab = "x", type = "l", lwd = 2)
 ```
 
 ```
-[1] "times 7e+20 = 7e+08 (g)"
+[1] "times 4.7e+21 = 4.7e+09 (g)"
 ```
 
 ```
@@ -200,15 +201,15 @@ plot(out[,1], out[,2], xlab = "Time", ylab = "x", type = "l", lwd = 2)
 ```
 
 ```
-[1] "Volume of an E. coli cell = -8e+00 (mm^3)"
+[1] "Volume of an E. coli cell = 1e-18 (mm^3)"
 ```
 
 ```
-[1] "times 7e+20 = 7e+08 (mm^3)"
+[1] "times 4.7e+21 = 4.7e+09 (mm^3)"
 ```
 
 ```
-[1] "The volume of Earth is = 1.1e+21 (g)"
+[1] "The volume of Earth is = 1.1e+21 (mm^3)"
 ```
 
 ```
@@ -520,9 +521,6 @@ $$
 <img src="QPot-figure/unnamed-chunk-39-1.png" title="plot of chunk unnamed-chunk-39" alt="plot of chunk unnamed-chunk-39" width="700px" height="700px" />
 <img src="QPot-figure/unnamed-chunk-40-1.png" title="plot of chunk unnamed-chunk-40" alt="plot of chunk unnamed-chunk-40" width="500px" height="313px" />
 <img src="QPot-figure/unnamed-chunk-41-1.png" title="plot of chunk unnamed-chunk-41" alt="plot of chunk unnamed-chunk-41" width="700px" height="700px" />
-
-Closing remarks
-========================================================
 
 
 Thank you
