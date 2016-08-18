@@ -508,8 +508,8 @@ local.2 <- QPotential(x.rhs = ce[1], x.start = 10, x.bound = bnd.x, x.num.steps 
 
 ```{r echo = F, fig.width=4, fig.height=4, out.width="600px", out.height="600px", dpi=300, cache=TRUE}
 par(mar=c(4, 4, 0, 0), oma = c(0, 0, 1, 1))
-QPContour(surface = local.1, dens = c(500, 500), x.bound = bnd.x, y.bound = c(-1, 15))
-QPContour(surface = local.2, dens = c(500, 500), x.bound = bnd.y, y.bound = c(-1, 15))
+QPContour(surface = local.1, dens = c(500, 500), x.bound = bnd.x, y.bound = bnd.y)
+QPContour(surface = local.2, dens = c(500, 500), x.bound = bnd.x, y.bound = bnd.y)
 ```
 
 QPOT: competition example, global quasi-potentials
